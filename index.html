@@ -1,29 +1,36 @@
 <!DOCTYPE html>
 <html>
-<head><meta charset="UTF-8">
+<head><meta charset="utf-8">
 <title>js</title>
-<style>.red{color:#f00}</style>
-<script type="text/javascript" src="edjs.js"></script>
+<style>
+.column{float:left;background:#bee;width:160px;margin:8px;padding:8px}
+</style>
+<script src="edjs.js"></script>
 <script>
-$(document).ready(function(){
-$(".l1").next().html("Hi").addClass("red").hover(function(){$(".in").fadeIn();},function(){$(".in").fadeOut();});
-$(".l1").on("click",function(){
-$(".l1,.l2").fadeIn().prepend($(".in").val());
-});
+$(function(){
 $(document).on("keyup",function(e){
 e=e||window.event;
 var e=e.charCode||e.keyCode;
-if(e==32) alert("Space");
-if(e==27) alert("Esc");
+if(e==27)alert("Esc");
 });
-$(".l2").after($(".l1").clone(true)).addClass("blue");
-$("p").each(function(i,el){
+$("h1").load("some.php",{n:"Ed"},function(msg){$(this).text(JSON.parse(msg).n)});
+$.fn.extend({
+equalheight:function(){
+return this.each(function(){
+var tall=0;
+$(this).children().each(function(){
+tall=Math.max($(this).height(),tall);
+}).css({"height":tall+'px'});
 });
-$.post("some.php",{name:"Ed"},function(msg){console.log("Data: " + JSON.parse(msg).name);});
+}
+});
+$('.equal').equalheight();
 });
 </script>
-</head><body>
-<p class="l1">L1</p>
-<p class="l2">L2</p>
-<input class="in" type="text" value="OK"/>
+</head><body><h1></h1>
+<div class="equal">
+<div class="column">Text1</div>
+<div class="column">Text2</div>
+<div class="column">Text3</div>
+</div>
 </body></html>
