@@ -13,7 +13,6 @@ e=e||window.event;
 var e=e.charCode||e.keyCode;
 if(e==27)alert("Esc");
 });
-$("h1").load("some.php",{n:"Ed"},function(msg){$(this).text(JSON.parse(msg).n)});
 $.fn.extend({
 equalheight:function(){
 return this.each(function(){
