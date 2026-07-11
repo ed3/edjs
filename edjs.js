@@ -1,8 +1,8 @@
 (function(){
 var $=window.$=function(s){
-	return new Edjs(s);
+	return new EdJS(s);
 };
-var Edjs=function(s){
+var EdJS=function(s){
 	var i,n,t;
 	this.length=0;
 	if(typeof s==="function"){
@@ -28,8 +28,8 @@ var Edjs=function(s){
 		}
 	}
 };
-Edjs.prototype={
-	constructor:Edjs,
+EdJS.prototype={
+	constructor:EdJS,
 	each:function(cb){
 		for(var i=0;i<this.length;i++) cb.call(this[i],i,this);
 		return this;
@@ -47,7 +47,7 @@ Edjs.prototype={
 	html:function(a){
 		if(a!==undefined){
 			var h=null;
-			if(typeof a==="object" && a instanceof Edjs){
+			if(typeof a==="object" && a instanceof EdJS){
 				h=a[0] ? a[0].innerHTML:"";
 			}else if(typeof a==="string"){
 				h=a;
@@ -144,7 +144,7 @@ Edjs.prototype={
 	},
 	append:function(a){
 		return this.each(function(){
-			if(typeof a==="object" && a instanceof Edjs){
+			if(typeof a==="object" && a instanceof EdJS){
 				this.appendChild(a[0].cloneNode(true));
 			}else if(typeof a==="object" && (a.nodeType||a instanceof NodeList)){
 				if(a.nodeType){
@@ -159,7 +159,7 @@ Edjs.prototype={
 	},
 	prepend:function(a){
 		return this.each(function(){
-			if(typeof a==="object" && a instanceof Edjs){
+			if(typeof a==="object" && a instanceof EdJS){
 				this.insertBefore(a[0].cloneNode(true),this.firstChild);
 			}else if(typeof a==="object" && (a.nodeType||a instanceof NodeList)){
 				if(a.nodeType){
@@ -175,7 +175,7 @@ Edjs.prototype={
 	after:function(a){
 		return this.each(function(){
 			var target=null;
-			if(typeof a==="object" && a instanceof Edjs){
+			if(typeof a==="object" && a instanceof EdJS){
 				target=a[0];
 			}else if(typeof a==="object" && a.nodeType){
 				target=a;
@@ -188,7 +188,7 @@ Edjs.prototype={
 	before:function(a){
 		return this.each(function(){
 			var target=null;
-			if(typeof a==="object" && a instanceof Edjs){
+			if(typeof a==="object" && a instanceof EdJS){
 				target=a[0];
 			}else if(typeof a==="object" && a.nodeType){
 				target=a;
@@ -228,8 +228,8 @@ Edjs.prototype={
 		return $(clonedEl);
 	},
 	_new:function(fn){
-		var newEl=fn.call(this),newEdjs=new Edjs(newEl);
-		return newEdjs;
+		var newEl=fn.call(this),newEdJS=new EdJS(newEl);
+		return newEdJS;
 	},
 	eq:function(a){
 		return $(this[a]);
@@ -476,18 +476,17 @@ Edjs.prototype={
 			});
 		});
 	},
-	load:function(url,data,complete){
+	load:function(url,data,cb){
 		if(typeof data==="function"){
-			complete=data;
+			cb=data;
 			data=null;
 		}
 		var el=this;
 		$.ajax({url:url,type:data?"POST":"GET",data:data,success:function(rText){
 			el.each(function(){this.innerHTML=rText;});
-			if(typeof complete==="function") complete.call(el[0],rText);
-		},
-		error:function(status,xhr){
-			if(typeof complete==="function") complete.call(el[0],xhr.responseText,status,xhr);
+			if(typeof cb==="function") cb.call(el[0],rText);
+		},error:function(status,xhr){
+			if(typeof cb==="function") cb.call(el[0],xhr.responseText,status,xhr);
 		}
 		});
 		return this;
@@ -516,19 +515,19 @@ Edjs.prototype={
 			switch(field.nodeName){
 			case "INPUT":
 				if(["text","hidden","password","email","url","tel","number","range","date","month","week","time","datetime-local","color"].indexOf(field.type)!==-1){
-					add(field.name, field.value);
+					add(field.name,field.value);
 				}else if(["checkbox","radio"].indexOf(field.type)!==-1){
 					if(field.checked){
-						add(field.name, field.value);
+						add(field.name,field.value);
 					}
 				}
 				break;
 			case "SELECT":
 				if(field.type==="select-one"){
 					add(field.name,field.value);
-				}else if(field.type === "select-multiple"){
+				}else if(field.type==="select-multiple"){
 					for(var j=0;j<field.options.length;j++){
-						if(field.options[j].selected) add(field.name, field.options[j].value);
+						if(field.options[j].selected) add(field.name,field.options[j].value);
 					}
 				}
 				break;
@@ -540,6 +539,17 @@ Edjs.prototype={
 		}
 		});
 		return arr.join("&");
+	},
+	slideDown:function(speed,fn){
+		return this.each(function(){_slide(this,"down",speed,fn);});
+	},
+	slideUp:function(speed,fn){
+		return this.each(function(){_slide(this,"up",speed,fn);});
+	},
+	slideToggle:function(speed,fn){
+		return this.each(function(){
+			_slide(this,getComputedStyle(this).display==="none"?"down":"up",speed,fn);
+		});
 	}
 };
 $.isArray=function(o){
@@ -646,10 +656,33 @@ function _getClosestEl(node){
 	}
 	return node;
 }
+function _slide(el, direction, speed, cb) {
+	var d = speed || 500;
+	var isDown = direction === "down";
+	if (isDown) el.style.display = "block";
+	var targetHeight = el.offsetHeight;
+	el.style.overflow = "hidden";
+	el.style.height = isDown ? "0" : targetHeight + "px";
+	var startTime = null;
+	requestAnimationFrame(function animate(currentTime) {
+		if (!startTime) startTime = currentTime;
+		var progress = Math.min((currentTime - startTime) / d, 1);
+		el.style.height = (isDown ? progress * targetHeight : (1 - progress) * targetHeight) + "px";
+		if (progress < 1) {
+			requestAnimationFrame(animate);
+		} else {
+			el.style.height = isDown ? "" : "0";
+			el.style.overflow = "";
+			if (!isDown) el.style.display = "none";
+			if (typeof cb === "function") cb.call(el);
+		}
+	});
+}
+$.htmlToEl=_htmlToEl;
 $.extend=function(o){
 	Object.assign(this,o);
 };
-$.fn=Edjs.prototype;
+$.fn=EdJS.prototype;
 $.fn.extend=function(o){
 	Object.assign(this,o);
 };
