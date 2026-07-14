@@ -15,71 +15,70 @@ if(e==27)alert("Esc");
 });
 $.fn.extend({
 equalheight:function(){
-	return this.each(function(){
-	var tall=0;
-	$(this).children().each(function(){
-	tall=Math.max($(this).height(),tall);
-	}).css({"height":tall+'px'});
-	});
+return this.each(function(){
+var tall=0;
+$(this).children().each(function(){
+tall=Math.max($(this).height(),tall);
+}).css({"height":tall+'px'});
+});
 }
 });
 $('.equal').equalheight();
 $.fn.extend({
 checkBoxSelect:function(options){
-	var opts=Object.assign({placeholder:"Select options"},options);
-	return this.each(function() {
-		if(this.nodeName !== "SELECT") return;
-		var $select=$(this);
-		$select.hide();
-		var container=$.htmlToEl(
-		'<div class="edjs-multiselect" style="position:relative; display:inline-block; width:' + ($select.width() || 200) + 'px; font-family:sans-serif; font-size:14px;">' +
-		'<div class="edjs-select-trigger" style="display:flex; align-items:center; justify-content:space-between; padding:8px 12px; border:1px solid #ccc; border-radius:4px; cursor:pointer; background:#fff; user-select:none;">' +
-		'<span class="edjs-trigger-text" style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis; padding-right:8px;">' + opts.placeholder + '</span><span class="edjs-trigger-arrow" style="font-size:10px; color:#555; flex-shrink:0;">▼</span></div>' +
-		'<div class="edjs-select-dropdown" style="display:none; position:absolute; top:100%; left:0; right:0; background:#fff; border:1px solid #ccc; border-top:none; border-radius:0 0 4px 4px; max-height:200px; overflow-y:auto; z-index:999; box-shadow:0 4px 6px rgba(0,0,0,0.1);"></div></div>');
-		var liveContainer = container.cloneNode(true);
-		if(this.parentNode)this.parentNode.insertBefore(liveContainer, this.nextSibling);
-		var $triggerText=$(liveContainer.querySelector('.edjs-trigger-text'));
-		var $trigger=$(liveContainer.querySelector('.edjs-select-trigger'));
-		var $dropdown=$(liveContainer.querySelector('.edjs-select-dropdown'));
-		var selectEl=this;
-		var updateTriggerText=function(){
-			var selected=[];
-			for(var i = 0; i < selectEl.options.length; i++){
-				if (selectEl.options[i].selected) selected.push(selectEl.options[i].text);
-			}
-			$triggerText.text(selected.length > 0 ? selected.join(', ') : opts.placeholder);
-		};
-		for(var i = 0; i < this.options.length; i++){
-			var opt = this.options[i];
-			var item = $.htmlToEl(
-			'<label style="display:flex; align-items:center; padding:8px 12px; cursor:pointer; margin:0; user-select:none;">' +
-			'<input type="checkbox" value="' + opt.value + '"' + (opt.selected ? ' checked' : '') +
-			' style="margin-right:8px; cursor:pointer;">' + '<span>' + opt.text + '</span>' + '</label>');
-			item.addEventListener('mouseover',function(){this.style.background = '#f5f5f5';});
-			item.addEventListener('mouseout',function(){this.style.background = 'transparent';});
-			var checkbox = item.querySelector('input');
-			checkbox.dataset.index = i;
-			checkbox.addEventListener('change',function(){
-				var index = parseInt(this.dataset.index, 10);
-				var option = selectEl.options[index];
-				option.selected = this.checked;
-				if(this.checked) option.setAttribute('selected','selected');
-				else option.removeAttribute('selected');
-				$select[0].dispatchEvent(new Event('change',{bubbles: true}));
-				updateTriggerText();
-			});
-			$dropdown[0].appendChild(item);
+var opts=Object.assign({placeholder:"Select options"},options);
+return this.each(function() {
+	if(this.nodeName !== "SELECT") return;
+	var $select=$(this);
+	$select.hide();
+	var container=$.htmlToEl(
+	'<div class="edjs-multiselect" style="position:relative;display:inline-block;width:'+($select.width()||200)+'px;font-family:sans-serif; font-size:14px;">'+
+	'<div class="edjs-select-trigger" style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border:1px solid #ccc; border-radius:4px;cursor:pointer;background:#fff;user-select:none;">'+
+	'<span class="edjs-trigger-text" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:8px;">'+opts.placeholder+ '</span><span class="edjs-trigger-arrow" style="font-size:10px;color:#555;flex-shrink:0;">▼</span></div>' +
+	'<div class="edjs-select-dropdown" style="display:none;position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #ccc; border-top:none;border-radius:0 0 4px 4px;max-height:200px;overflow-y:auto;z-index:999;box-shadow:0 2px 5px rgba(0,0,0,0.1);"></div></div>');
+	var liveContainer=container.cloneNode(true);
+	if(this.parentNode)this.parentNode.insertBefore(liveContainer, this.nextSibling);
+	var $triggerText=$(liveContainer.querySelector('.edjs-trigger-text'));
+	var $trigger=$(liveContainer.querySelector('.edjs-select-trigger'));
+	var $dropdown=$(liveContainer.querySelector('.edjs-select-dropdown'));
+	var sEl=this;
+	var updateTriggerText=function(){
+		var selected=[];
+		for(var i=0; i < sEl.options.length; i++){
+			if (sEl.options[i].selected) selected.push(sEl.options[i].text);
 		}
-		updateTriggerText();
-		$trigger.on('click',function(e){
-			e.stopPropagation();
-			$dropdown.slideToggle(200);
+		$triggerText.text(selected.length > 0 ? selected.join(', ') : opts.placeholder);
+	};
+	for(var i=0;i < this.options.length;i++){
+		var opt=this.options[i];
+		var item=$.htmlToEl(
+		'<label style="display:flex; align-items:center;padding:8px 12px;cursor:pointer;margin:0;user-select:none;">' +
+		'<input type="checkbox" value="' + opt.value + '"'+(opt.selected ? ' checked':'')+
+		' style="margin-right:8px; cursor:pointer;"><span>'+opt.text+'</span></label>');
+		item.addEventListener('mouseover',function(){this.style.background='#f5f5f5';});
+		item.addEventListener('mouseout',function(){this.style.background='transparent';});
+		var checkbox=item.querySelector('input');
+		checkbox.dataset.index=i;
+		checkbox.addEventListener('change',function(){
+			var index=parseInt(this.dataset.index,10), option=sEl.options[index];
+			option.selected=this.checked;
+			if(this.checked) option.setAttribute('selected','selected');
+			else option.removeAttribute('selected');
+			$select[0].dispatchEvent(new Event('change',{bubbles: true}));
+			updateTriggerText();
 		});
-		document.addEventListener('click',function(){
-			if(getComputedStyle($dropdown[0]).display !== 'none') $dropdown.slideUp(200);
-		});
-		$dropdown.on('click',function(e){e.stopPropagation();});
+		$dropdown[0].appendChild(item);
+	}
+	updateTriggerText();
+	$trigger.on('click',function(e){
+		e.stopPropagation();
+		$dropdown.slideToggle(10);
 	});
+	document.addEventListener('click',function(){
+		if(getComputedStyle($dropdown[0]).display !== 'none') $dropdown.slideUp(100);
+	});
+	$dropdown.on('click',function(e){e.stopPropagation();});
+});
 }
 });
 $('#mySelect').checkBoxSelect({placeholder: "Choose..."});
@@ -93,9 +92,9 @@ $('#mySelect').checkBoxSelect({placeholder: "Choose..."});
 </div>
 <br style="clear:both"/>
 <select id="mySelect" name="categories" multiple>
-<option value="1">Technology</option>
-<option value="2">Design</option>
-<option value="3">Marketing</option>
-<option value="4">Business</option>
+<option value="1">Java</option>
+<option value="2">Php</option>
+<option value="3">Perl</option>
+<option value="4">JavaScript</option>
 </select>
 </body></html>
