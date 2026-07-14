@@ -6,19 +6,15 @@ var EdJS=function(s){
 	if(typeof s==="function"){
 		document.readyState==="loading" ? document.addEventListener("DOMContentLoaded",s):s();
 	}else if(typeof s==="string"){
-		var els=s.split(/\s*,\s*/);
-		var nod=[];
-		for(i=0,n=els.length;i<n;i++){
-			t=document.querySelectorAll(els[i]);
-			for(var j=0,k=t.length;j<k;j++){if(nod.indexOf(t[j])===-1) nod.push(t[j]);}
-		}
-		for(i=0,n=nod.length;i<n;i++) this[i]=nod[i];
-		this.length=nod.length;
+		var t=document.querySelectorAll(s);n=t.length;
+		for(i=0;i<n;i++) this[i]=t[i];
+		this.length=n;
 	}else if(typeof s==="object"){
 		if(s instanceof NodeList||s instanceof HTMLCollection||Array.isArray(s)){
-			for(i=0,n=s.length;i<n;i++) this[i]=s[i];
-			this.length=s.length;
-		}else if(s.nodeType||s===window){
+			n=s.length;
+			for(i=0;i<n;i++) this[i]=s[i];
+			this.length=n;
+		}else{
 			this[0]=s;
 			this.length=1;
 		}
@@ -71,9 +67,7 @@ EdJS.prototype={
 		return this.each(function(){this.removeAttribute(a);});
 	},
 	css:function(a,v){
-		if(typeof a==='string' && v===undefined){
-			return this.length>0 ? getComputedStyle(this[0])[a]:'';
-		}
+		if(typeof a==='string' && v===undefined) return this.length>0 ? getComputedStyle(this[0])[a]:'';
 		if(typeof a==='object' && a!==null){
 			return this.each(function(){
 				for(var prop in a){if(a[prop]) this.style[prop]=a[prop];}
@@ -92,16 +86,16 @@ EdJS.prototype={
 	},
 	addClass:function(a){
 		return this.each(function(){
-			var classes=a.split(" ");
-			for(var i=0;i<classes.length;i++){
-				if(classes[i]) this.classList.add(classes[i]);
+			var cls=a.split(" ");
+			for(var i=0;i<cls.length;i++){
+				if(cls[i]) this.classList.add(cls[i]);
 			}
 		});
 	},
 	removeClass:function(a){
 		return this.each(function(){
-			var classes=a.split(" ");
-			for(var i=0;i<classes.length;i++){if(classes[i]) this.classList.remove(classes[i]);}
+			var cls=a.split(" ");
+			for(var i=0;i<cls.length;i++){if(cls[i]) this.classList.remove(cls[i]);}
 			if(this.classList.length===0) this.removeAttribute("class");
 		});
 	},
@@ -165,58 +159,57 @@ EdJS.prototype={
 	},
 	after:function(a){
 		return this.each(function(){
-			var target=null;
+			var el=null;
 			if(typeof a==="object" && a instanceof EdJS){
-				target=a[0];
+				el=a[0];
 			}else if(typeof a==="object" && a.nodeType){
-				target=a;
+				el=a;
 			}else if(typeof a==="string"){
-				target=_htmlToEl(a);
+				el=_htmlToEl(a);
 			}
-			if(target && this.parentNode) this.parentNode.insertBefore(target.cloneNode(true),this.nextSibling);
+			if(el && this.parentNode) this.parentNode.insertBefore(el.cloneNode(true),this.nextSibling);
 		});
 	},
 	before:function(a){
 		return this.each(function(){
-			var target=null;
+			var el=null;
 			if(typeof a==="object" && a instanceof EdJS){
-				target=a[0];
+				el=a[0];
 			}else if(typeof a==="object" && a.nodeType){
-				target=a;
+				el=a;
 			}else if(typeof a==="string"){
-				target=_htmlToEl(a);
+				el=_htmlToEl(a);
 			}
-			if(target && this.parentNode) this.parentNode.insertBefore(target.cloneNode(true),this);
+			if(el && this.parentNode) this.parentNode.insertBefore(el.cloneNode(true),this);
 		});
 	},
 	insertAfter:function(selector){
-		var target=$(selector);
-		if(target.length>0){
+		var el=$(selector);
+		if(el.length>0){
 			return this.each(function(){
-				var el=this;
-				target.each(function(){if(this.parentNode) this.parentNode.insertBefore(el.cloneNode(true),this.nextSibling);});
+				var self=this;
+				el.each(function(){if(this.parentNode) this.parentNode.insertBefore(self.cloneNode(true),this.nextSibling);});
 			});
 		}
 		return this;
 	},
 	insertBefore:function(selector){
-		var target=$(selector);
-		if(target.length>0){
+		var el=$(selector);
+		if(el.length>0){
 			return this.each(function(){
-				var el=this;
-				target.each(function(){if(this.parentNode) this.parentNode.insertBefore(el.cloneNode(true),this);});
+				var self=this;
+				el.each(function(){if(this.parentNode) this.parentNode.insertBefore(self.cloneNode(true),this);});
 			});
 		}
 		return this;
 	},
 	clone:function(withChildren){
-		var clonedEl=[];
-		this.each(function(){clonedEl.push(this.cloneNode(withChildren===true));});
-		return $(clonedEl);
+		var el=[];
+		this.each(function(){el.push(this.cloneNode(withChildren===true));});
+		return $(el);
 	},
 	_new:function(fn){
-		var newEl=fn.call(this),newEdJS=new EdJS(newEl);
-		return newEdJS;
+		return $(fn.call(this));
 	},
 	eq:function(a){
 		return $(this[a]);
@@ -225,8 +218,8 @@ EdJS.prototype={
 		return this._new(function(){
 			var el=[];
 			this.each(function(){
-				var matches=this.querySelectorAll(a);
-				for(var i=0,n=matches.length;i<n;i++){if(el.indexOf(matches[i])===-1) el.push(matches[i]);}
+				var match=this.querySelectorAll(a);
+				for(var i=0,n=match.length;i<n;i++){if(el.indexOf(match[i])===-1) el.push(match[i]);}
 			});
 			return el;
 		});
@@ -255,47 +248,41 @@ EdJS.prototype={
 			return -1;
 		}
 		if(typeof selector==="string"){
-			var elements=$(selector);
-			for(var j=0; j < elements.length; j++){if(elements[j]===el) return j;}
+			var els=$(selector);
+			for(var j=0; j < els.length; j++){if(els[j]===el) return j;}
 			return -1;
 		}
-		var targetEl=selector instanceof EdJS ? selector[0] : selector;
-		if(targetEl){
-			for(var l=0;l < this.length;l++){if(this[l]===targetEl) return l;}
+		var tEl=selector instanceof EdJS ? selector[0] : selector;
+		if(tEl){
+			for(var l=0;l < this.length;l++){if(this[l]===tEl) return l;}
 		}
 		return -1;
 	},
 	closest:function(a){
 		return this._new(function(){
-			var closestEl=[];
+			var cEl=[];
 			this.each(function(){
 				var el=this;
 				while(el && el!==document){
 					if(el.matches(a)){
-					if(closestEl.indexOf(el)===-1) closestEl.push(el);
+					if(cEl.indexOf(el)===-1) cEl.push(el);
 					break;
 					}
 					el=el.parentNode;
 				}
 			});
-			return closestEl;
+			return cEl;
 		});
 	},
 	height:function(value){
-		if(value===undefined){
-			return this.length>0 ? this[0].offsetHeight:0;
-		}else{
-			var cssValue=typeof value==='number' ? value+'px':value;
-			return this.each(function(){this.style.height=cssValue;});
-		}
+		if(value===undefined) return this.length>0 ? this[0].offsetHeight:0;
+		var cssValue=typeof value==='number' ? value+'px':value;
+		return this.each(function(){this.style.height=cssValue;});
 	},
 	width:function(value){
-		if(value===undefined){
-			return this.length>0 ? this[0].offsetWidth:0;
-		}else{
-			var cssValue=typeof value==='number' ? value+'px':value;
-			return this.each(function(){this.style.width=cssValue;});
-		}
+		if(value===undefined) return this.length>0 ? this[0].offsetWidth:0;
+		var cssValue=typeof value==='number' ? value+'px':value;
+		return this.each(function(){this.style.width=cssValue;});
 	},
 	innerWidth:function(){
 		if(this.length===0) return 0;
@@ -484,16 +471,14 @@ EdJS.prototype={
 	hover:function(fnOver,fnOut){
 		return this.each(function(){this.addEventListener("mouseover",fnOver);this.addEventListener("mouseout",fnOut);});
 	},
-	fadeIn:function(speed,fn){
+	fadeIn:function(speed=500,fn){
 		return this.each(function(){
-			var el=this;
-			var d=speed||500;
+			var el=this,sTime=null;
 			el.style.opacity=0;
 			el.style.display="block";
-			var startTime=null;
-			function animate(currentTime){
-				if(!startTime) startTime=currentTime;
-				var progress=(currentTime - startTime)/d;
+			function animate(cTime){
+				if(!sTime) sTime=cTime;
+				var progress=(cTime - sTime)/speed;
 				el.style.opacity=progress;
 				if(progress<1){
 					requestAnimationFrame(animate);
@@ -505,15 +490,13 @@ EdJS.prototype={
 			requestAnimationFrame(animate);
 		});
 	},
-	fadeOut:function(speed,fn){
+	fadeOut:function(speed=500,fn){
 		return this.each(function(){
-			var el=this;
-			var d=speed||500;
+			var el=this,sTime=null;
 			el.style.opacity=1;
-			var startTime=null;
-			function animate(currentTime){
-				if(!startTime) startTime=currentTime;
-				var progress=(currentTime - startTime)/d;
+			function animate(cTime){
+				if(!sTime) sTime=cTime;
+				var progress=(cTime - sTime)/speed;
 				el.style.opacity=1 - progress;
 				if(progress<1){
 					requestAnimationFrame(animate);
@@ -541,10 +524,7 @@ EdJS.prototype={
 		});
 	},
 	load:function(url,data,cb){
-		if(typeof data==="function"){
-			cb=data;
-			data=null;
-		}
+		if(typeof data==="function"){cb=data;data=null;}
 		var el=this;
 		$.ajax({url:url,type:data?"POST":"GET",data:data,success:function(rText){
 			el.each(function(){this.innerHTML=rText;});
@@ -610,19 +590,25 @@ EdJS.prototype={
 		return this.each(function(){_slide(this,getComputedStyle(this).display==="none"?"down":"up",speed,fn);});
 	}
 };
-$.isArray=function(o){
-	return Array.isArray(o);
+$.inArray=function(k,arr){
+	return arr.indexOf(k)!==-1;
 };
-$.inArray=function(key,arr){
-	return arr.indexOf(key)!==-1;
+$.isArray=function(v){
+	return Array.isArray(v);
 };
-$.isObj=function(str){
-	return typeof str==="object" && str!==null && !Array.isArray(str);
+$.isFunction=function(v){
+	return typeof v==='function';
 };
-$.isJson=function(str){
-	if(typeof str!=='string') return false;
+$.isNumeric=function(v){
+	return !isNaN(parseFloat(v)) && isFinite(v);
+};
+$.isObj=function(v){
+	return typeof v==="object" && v!==null && !Array.isArray(v);
+};
+$.isJson=function(v){
+	if(typeof v!=='string') return false;
 	try{
-	var parsed=JSON.parse(str);
+	var parsed=JSON.parse(v);
 	if(parsed===null || typeof parsed==='undefined') return false;
 	if(typeof parsed!=='object' && !Array.isArray(parsed)) return false;
 	return true;
@@ -636,7 +622,7 @@ $.ajax=function(opt){
 	opt.async=opt.async!==false;
 	opt.data=opt.data ||{};
 	opt.headers=opt.headers ||{};
-	opt.dataType=opt.dataType!=null ? opt.dataType:"html";
+	opt.dataType=opt.dataType||"html";
 	var xhr=new XMLHttpRequest();
 	xhr.onreadystatechange=function(){
 		if(xhr.readyState===4){
@@ -652,19 +638,19 @@ $.ajax=function(opt){
 		}
 		}
 	};
-	var queryString="";
+	var qStr="";
 	if($.isObj(opt.data)){
 		var params=[];
 		for(var name in opt.data){
 			if(opt.data.hasOwnProperty(name)) params.push(encodeURIComponent(name)+"="+encodeURIComponent(opt.data[name]));
 		}
-		queryString=params.join("&");
+		qStr=params.join("&");
 	}else if(typeof opt.data==="string"){
-		queryString=opt.data;
+		qStr=opt.data;
 	}
 	if(opt.type==="GET"){
 		var url=opt.url;
-		if(queryString) url += (url.indexOf("?")===-1 ? "?":"&") + queryString;
+		if(qStr) url += (url.indexOf("?")===-1 ? "?":"&") + qStr;
 		xhr.open("GET",url,opt.async);
 		for(var headerName in opt.headers){
 			if(opt.headers.hasOwnProperty(headerName)) xhr.setRequestHeader(headerName,opt.headers[headerName]);
@@ -676,45 +662,38 @@ $.ajax=function(opt){
 		for(var headerName in opt.headers){
 			if(opt.headers.hasOwnProperty(headerName)) xhr.setRequestHeader(headerName,opt.headers[headerName]);
 		}
-		xhr.send(queryString);
+		xhr.send(qStr);
 	}
 };
 $.get=function(url,data,success,dataType){
-	if(typeof data==="function"){
-		dataType=success; success=data; data=null;
-	}
+	if(typeof data==="function"){dataType=success; success=data; data=null;}
 	$.ajax({url:url,type:"GET",data:data,success:success,dataType:dataType});
 };
 $.post=function(url,data,success,dataType){
-	if(typeof data==="function"){
-		dataType=success; success=data; data=null;
-	}
+	if(typeof data==="function"){dataType=success; success=data; data=null;}
 	$.ajax({url:url,type:"POST",data:data,success:success,dataType:dataType});
 };
 function _htmlToEl(h){
 	var div=document.createElement("div");
 	div.innerHTML=h.trim();
-	if(div.children.length===1){
-		return div.firstElementChild;
-	}else{
-		var frg=document.createDocumentFragment();
-		while(div.firstChild){frg.appendChild(div.firstChild);}
-		return frg;
-	}
+	if(div.children.length===1) return div.firstElementChild;
+	var frg=document.createDocumentFragment();
+	while(div.firstChild){frg.appendChild(div.firstChild);}
+	return frg;
 }
 function _getClosestEl(node){
 	while(node && node.nodeType!==1){node=node.nextSibling||node.previousSibling||node.parentNode;}
 	return node;
 }
-function _slide(el,direction,speed,cb){
-	var d=speed||500,isDown=direction==="down",targetHeight=el.offsetHeight,startTime=null;
+function _slide(el,direction,speed=500,cb){
+	var isDown=direction==="down",targetH=el.offsetHeight,sTime=null;
 	if(isDown)el.style.display="block";
 	el.style.overflow="hidden";
-	el.style.height=isDown ? "0":targetHeight+"px";
-	requestAnimationFrame(function animate(currentTime){
-		if(!startTime) startTime=currentTime;
-		var progress=Math.min((currentTime - startTime) / d, 1);
-		el.style.height=(isDown ? progress * targetHeight : (1 - progress) * targetHeight)+"px";
+	el.style.height=isDown ? "0":targetH+"px";
+	requestAnimationFrame(function animate(cTime){
+		if(!sTime) sTime=cTime;
+		var progress=Math.min((cTime - sTime)/speed,1);
+		el.style.height=(isDown ? progress * targetH : (1 - progress) * targetH)+"px";
 		if(progress < 1){
 			requestAnimationFrame(animate);
 		}else{
@@ -726,7 +705,7 @@ function _slide(el,direction,speed,cb){
 	});
 }
 $.htmlToEl=_htmlToEl;
-$.extend=function(o){Object.assign(this,o);};
+$.extend=function(v){Object.assign(this,v);};
 $.fn=EdJS.prototype;
-$.fn.extend=function(o){Object.assign(this,o);};
+$.fn.extend=function(v){Object.assign(this,v);};
 })();
