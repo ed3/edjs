@@ -6,7 +6,7 @@ var EdJS=function(s){
 	if(typeof s==="function"){
 		document.readyState==="loading" ? document.addEventListener("DOMContentLoaded",s):s();
 	}else if(typeof s==="string"){
-		var t=document.querySelectorAll(s);n=t.length;
+		t=document.querySelectorAll(s);n=t.length;
 		for(i=0;i<n;i++) this[i]=t[i];
 		this.length=n;
 	}else if(typeof s==="object"){
@@ -67,11 +67,9 @@ EdJS.prototype={
 		return this.each(function(){this.removeAttribute(a);});
 	},
 	css:function(a,v){
-		if(typeof a==='string' && v===undefined) return this.length>0 ? getComputedStyle(this[0])[a]:'';
+		if(typeof a==='string' && v===undefined){return this.length>0 ? getComputedStyle(this[0])[a]:'';}
 		if(typeof a==='object' && a!==null){
-			return this.each(function(){
-				for(var prop in a){if(a[prop]) this.style[prop]=a[prop];}
-			});
+			return this.each(function(){for(var prop in a){if(a[prop]) this.style[prop]=a[prop];}});
 		}
 		if(typeof a==='string' && v!==undefined){
 			return this.each(function(){this.style[a]=v;});
@@ -160,31 +158,23 @@ EdJS.prototype={
 	after:function(a){
 		return this.each(function(){
 			var el=null;
-			if(typeof a==="object" && a instanceof EdJS){
-				el=a[0];
-			}else if(typeof a==="object" && a.nodeType){
-				el=a;
-			}else if(typeof a==="string"){
-				el=_htmlToEl(a);
-			}
+			if(typeof a==="object" && a instanceof EdJS){el=a[0];}
+			else if(typeof a==="object" && a.nodeType){el=a;}
+			else if(typeof a==="string"){el=_htmlToEl(a);}
 			if(el && this.parentNode) this.parentNode.insertBefore(el.cloneNode(true),this.nextSibling);
 		});
 	},
 	before:function(a){
 		return this.each(function(){
 			var el=null;
-			if(typeof a==="object" && a instanceof EdJS){
-				el=a[0];
-			}else if(typeof a==="object" && a.nodeType){
-				el=a;
-			}else if(typeof a==="string"){
-				el=_htmlToEl(a);
-			}
+			if(typeof a==="object" && a instanceof EdJS){el=a[0];}
+			else if(typeof a==="object" && a.nodeType){el=a;}
+			else if(typeof a==="string"){el=_htmlToEl(a);}
 			if(el && this.parentNode) this.parentNode.insertBefore(el.cloneNode(true),this);
 		});
 	},
-	insertAfter:function(selector){
-		var el=$(selector);
+	insertAfter:function(a){
+		var el=$(a);
 		if(el.length>0){
 			return this.each(function(){
 				var self=this;
@@ -193,8 +183,8 @@ EdJS.prototype={
 		}
 		return this;
 	},
-	insertBefore:function(selector){
-		var el=$(selector);
+	insertBefore:function(a){
+		var el=$(a);
 		if(el.length>0){
 			return this.each(function(){
 				var self=this;
@@ -203,9 +193,9 @@ EdJS.prototype={
 		}
 		return this;
 	},
-	clone:function(withChildren){
+	clone:function(a){
 		var el=[];
-		this.each(function(){el.push(this.cloneNode(withChildren===true));});
+		this.each(function(){el.push(this.cloneNode(a===true));});
 		return $(el);
 	},
 	_new:function(fn){
@@ -237,22 +227,22 @@ EdJS.prototype={
 			return el;
 		});
 	},
-	index:function(selector){
+	index:function(a){
 		if(this.length===0) return -1;
 		var el=this[0];
-		if(selector===undefined){
+		if(a===undefined){
 			var parent=el.parentNode;
 			if(!parent) return -1;
 			var siblings=parent.children;
 			for(var i=0;i < siblings.length;i++){if(siblings[i]===el) return i;}
 			return -1;
 		}
-		if(typeof selector==="string"){
-			var els=$(selector);
+		if(typeof a==="string"){
+			var els=$(a);
 			for(var j=0; j < els.length; j++){if(els[j]===el) return j;}
 			return -1;
 		}
-		var tEl=selector instanceof EdJS ? selector[0] : selector;
+		var tEl=a instanceof EdJS ? a[0] : a;
 		if(tEl){
 			for(var l=0;l < this.length;l++){if(this[l]===tEl) return l;}
 		}
@@ -274,15 +264,15 @@ EdJS.prototype={
 			return cEl;
 		});
 	},
-	height:function(value){
-		if(value===undefined) return this.length>0 ? this[0].offsetHeight:0;
-		var cssValue=typeof value==='number' ? value+'px':value;
-		return this.each(function(){this.style.height=cssValue;});
+	height:function(a){
+		if(a===undefined) return this.length>0 ? this[0].offsetHeight:0;
+		var cssVal=typeof a==='number' ? a+'px':a;
+		return this.each(function(){this.style.height=cssVal;});
 	},
-	width:function(value){
-		if(value===undefined) return this.length>0 ? this[0].offsetWidth:0;
-		var cssValue=typeof value==='number' ? value+'px':value;
-		return this.each(function(){this.style.width=cssValue;});
+	width:function(a){
+		if(a===undefined) return this.length>0 ? this[0].offsetWidth:0;
+		var cssVal=typeof a==='number' ? a+'px':a;
+		return this.each(function(){this.style.width=cssVal;});
 	},
 	innerWidth:function(){
 		if(this.length===0) return 0;
@@ -298,54 +288,54 @@ EdJS.prototype={
 		if(el===document) return document.documentElement.clientHeight;
 		return el.clientHeight;
 	},
-	outerWidth:function(includeMargin){
+	outerWidth:function(a){
 		if(this.length===0) return 0;
 		var el=this[0];
 		if(el===window) return window.outerWidth;
 		if(el===document) return document.documentElement.clientWidth;
 		var size=el.offsetWidth;
-		if(includeMargin===true){
+		if(a===true){
 			var style=getComputedStyle(el);
 			size+=parseFloat(style.marginLeft)+parseFloat(style.marginRight);
 		}
 		return size;
 	},
-	outerHeight:function(includeMargin){
+	outerHeight:function(a){
 		if(this.length===0) return 0;
 		var el=this[0];
 		if(el===window) return window.outerHeight;
 		if(el===document) return document.documentElement.clientHeight;
 		var size=el.offsetHeight;
-		if(includeMargin===true){
+		if(a===true){
 			var style=getComputedStyle(el);
 			size+=parseFloat(style.marginTop)+parseFloat(style.marginBottom);
 		}
 		return size;
 	},
-	filter:function(selector){
+	filter:function(a){
 		return this._new(function(){
 			var el=[];
-			if(typeof selector==="function"){
-				for(var i=0;i < this.length;i++){if(selector.call(this[i],i,this[i])) el.push(this[i]);}
-			}else if(typeof selector==="string"){
-				for(var i=0;i < this.length;i++){if(this[i].matches(selector)) el.push(this[i]);}
-			}else if(selector){
-				var targetEl=selector instanceof EdJS ? selector[0] : selector;
-				for(var i=0;i < this.length;i++){if(this[i]===targetEl)el.push(this[i]);}
+			if(typeof a==="function"){
+				for(var i=0;i < this.length;i++){if(a.call(this[i],i,this[i])) el.push(this[i]);}
+			}else if(typeof a==="string"){
+				for(var i=0;i < this.length;i++){if(this[i].matches(a)) el.push(this[i]);}
+			}else if(a){
+				var tEl=a instanceof EdJS ? a[0]:a;
+				for(var i=0;i < this.length;i++){if(this[i]===tEl)el.push(this[i]);}
 			}
 			return el;
 		});
 	},
-	not:function(selector){
+	not:function(a){
 		return this._new(function(){
 			var el=[];
-			if(typeof selector==="function"){
-				for(var i=0;i < this.length;i++){if(!selector.call(this[i],i,this[i])) el.push(this[i]);}
-			}else if(typeof selector==="string"){
-				for(var i=0;i < this.length;i++){if (!this[i].matches(selector)) el.push(this[i]);}
-			}else if(selector){
-				var targetEl=selector instanceof EdJS ? selector[0] : selector;
-				for(var i=0;i < this.length;i++){if(this[i] !== targetEl) el.push(this[i]);}
+			if(typeof a==="function"){
+				for(var i=0;i < this.length;i++){if(!a.call(this[i],i,this[i])) el.push(this[i]);}
+			}else if(typeof a==="string"){
+				for(var i=0;i < this.length;i++){if(!this[i].matches(a)) el.push(this[i]);}
+			}else if(a){
+				var tEl=a instanceof EdJS ? a[0]:a;
+				for(var i=0;i < this.length;i++){if(this[i] !== tEl) el.push(this[i]);}
 			}else{
 				for(var i=0;i < this.length;i++) el.push(this[i]);
 			}
@@ -388,7 +378,7 @@ EdJS.prototype={
 		this.each(function(){
 			for(var i=0;i<this.children.length;i++){
 				var child=this.children[i];
-				if(!a || child.matches(a)){
+				if(!a||child.matches(a)){
 					if(childEl.indexOf(child)===-1) childEl.push(child);
 				}
 			}
@@ -402,7 +392,7 @@ EdJS.prototype={
 			if(parent){
 				for(var i=0;i<parent.children.length;i++){
 					var sibling=parent.children[i];
-					if(sibling !== el && (!a || sibling.matches(a))){
+					if(sibling !== el && (!a||sibling.matches(a))){
 						if(sEl.indexOf(sibling)===-1) sEl.push(sibling);
 					}
 				}
@@ -430,9 +420,9 @@ EdJS.prototype={
 			return el;
 		});
 	},
-	wrap:function(el){
+	wrap:function(a){
 		return this.each(function(){
-			var wrapper=typeof el==='string' ? _htmlToEl(el):el;
+			var wrapper=typeof a==='string' ? _htmlToEl(a):a;
 			if(wrapper && this.parentNode){
 				var cloneWrap=wrapper.cloneNode(true);
 				this.parentNode.insertBefore(cloneWrap,this);
@@ -440,9 +430,9 @@ EdJS.prototype={
 			}
 		});
 	},
-	wrapAll:function(el){
+	wrapAll:function(a){
 		if(this.length===0) return this;
-		var wrapper=typeof el==='string' ? _htmlToEl(el):el;
+		var wrapper=typeof a==='string' ? _htmlToEl(a):a;
 		if(wrapper){
 			var firstEl=this[0];
 			var parent=firstEl.parentNode;
@@ -508,6 +498,65 @@ EdJS.prototype={
 			}
 			requestAnimationFrame(animate);
 		});
+	},
+	animate:function(props,dur,eas,cb){
+	var o=typeof dur==="object" ? dur:{duration:dur,complete:typeof eas==="function" ? eas:cb},d=o.duration==="fast" ? 200:o.duration==="slow" ? 500:parseFloat(o.duration)||300;
+	return this.each(function(){
+		var el=this,start={},end={},sTime=null,comp=getComputedStyle(el),disp=el.style.display==="none" ? "block":el.style.display||comp.display;
+		for(var p in props){
+			if(!props.hasOwnProperty(p)) continue;
+			var val=props[p],cur=parseFloat(comp[p]||comp[p.replace(/([A-Z])/g,"-$1").toLowerCase()]);
+			if(isNaN(cur)){cur=p==='width'?el.offsetWidth:p==='height'?el.offsetHeight:p==='opacity'?1:0;}
+			start[p]=cur;
+			if(val==="toggle"||val==="show"||val==="hide"){
+				var isHide=val==="hide"||(val==="toggle" && comp.display !== "none" && cur > 0),k="_anim_"+p;
+				el[k]=isHide ? cur:el[k];
+				end[p]={v:isHide?0:parseFloat(el[k]||(p==="opacity"?1:p==="width"?el.scrollWidth:el.scrollHeight)),u:p==='opacity'?'':'px',act:isHide?"hide":"show"};
+				if(!isHide) el.style.display=disp;
+			}else{
+				var m=String(val).match(/^([+-]=)?([-\d.]+)(.*)$/);
+				if(m){
+					var tgt=parseFloat(m[2]);
+					if(m[1]==="+=") tgt=cur+tgt;
+					if(m[1]==="-=") tgt=cur-tgt;
+					end[p]={v:tgt,u:m[3]||(p==="opacity"?"":"px")};
+				}
+			}
+		}
+		requestAnimationFrame(function step(t){
+			sTime=sTime||t;
+			var elapsed=t-sTime,progress=Math.min(elapsed/d,1),ease=0.5 - Math.cos(progress * Math.PI)/2;
+			for(var p in props){
+				if(props.hasOwnProperty(p) && end[p]){
+					var now=start[p]+(end[p].v-start[p])*ease;
+					if(o.step){
+						var tw={elem:el,prop:p,start:start[p],end:end[p].v,unit:end[p].u,pos:ease,now:now};
+						o.step.call(el,now,tw);
+						now=tw.now;
+					}
+					p in el.style ? el.style[p]=now + end[p].u:el[p]=now;
+				}
+			}
+			if(o.progress) o.progress.call(el,null,progress,Math.max(0,d-elapsed));
+			if(progress < 1){
+				requestAnimationFrame(step);
+			}else{
+				for(var p in props){
+					if(props.hasOwnProperty(p) && end[p] && end[p].act==="hide"){el.style.display="none";el.style[p]="";}
+				}
+				if(o.complete) o.complete.call(el);
+			}
+		});
+	});
+	},
+	slideDown:function(speed,fn){
+		return this.each(function(){_slide(this,"down",speed,fn);});
+	},
+	slideUp:function(speed,fn){
+		return this.each(function(){_slide(this,"up",speed,fn);});
+	},
+	slideToggle:function(speed,fn){
+		return this.each(function(){_slide(this,getComputedStyle(this).display==="none"?"down":"up",speed,fn);});
 	},
 	on:function(ev,fn){
 		var evs=ev.split(" ");
@@ -579,15 +628,6 @@ EdJS.prototype={
 		}
 		});
 		return arr.join("&");
-	},
-	slideDown:function(speed,fn){
-		return this.each(function(){_slide(this,"down",speed,fn);});
-	},
-	slideUp:function(speed,fn){
-		return this.each(function(){_slide(this,"up",speed,fn);});
-	},
-	slideToggle:function(speed,fn){
-		return this.each(function(){_slide(this,getComputedStyle(this).display==="none"?"down":"up",speed,fn);});
 	}
 };
 $.inArray=function(k,arr){
@@ -609,7 +649,7 @@ $.isJson=function(v){
 	if(typeof v!=='string') return false;
 	try{
 	var parsed=JSON.parse(v);
-	if(parsed===null || typeof parsed==='undefined') return false;
+	if(parsed===null||typeof parsed==='undefined') return false;
 	if(typeof parsed!=='object' && !Array.isArray(parsed)) return false;
 	return true;
 	}catch(e){
@@ -620,19 +660,16 @@ $.ajax=function(opt){
 	opt=opt||{};
 	opt.type=(opt.type||"GET").toUpperCase();
 	opt.async=opt.async!==false;
-	opt.data=opt.data ||{};
-	opt.headers=opt.headers ||{};
+	opt.data=opt.data||{};
+	opt.headers=opt.headers||{};
 	opt.dataType=opt.dataType||"html";
 	var xhr=new XMLHttpRequest();
 	xhr.onreadystatechange=function(){
 		if(xhr.readyState===4){
 		var status=xhr.status;
 		if(status >= 200 && status<300||status===304){
-			if(opt.dataType=='json'){
-				opt.success && opt.success(JSON.parse(xhr.responseText),xhr.responseXML,xhr);
-			}else{
-				opt.success && opt.success(xhr.responseText,xhr.responseXML,xhr);
-			}
+			var data=xhr.responseText;
+			opt.success && opt.success((opt.dataType=='json' ? JSON.parse(data):data),xhr.responseXML,xhr);
 		}else{
 			opt.error && opt.error(status,xhr);
 		}
@@ -650,7 +687,7 @@ $.ajax=function(opt){
 	}
 	if(opt.type==="GET"){
 		var url=opt.url;
-		if(qStr) url += (url.indexOf("?")===-1 ? "?":"&") + qStr;
+		if(qStr) url += (url.indexOf("?")===-1 ? "?":"&")+qStr;
 		xhr.open("GET",url,opt.async);
 		for(var headerName in opt.headers){
 			if(opt.headers.hasOwnProperty(headerName)) xhr.setRequestHeader(headerName,opt.headers[headerName]);
