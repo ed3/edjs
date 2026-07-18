@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head><meta charset="utf-8">
-<title>js</title>
+<title>EdJS</title>
 <style>
-.column{float:left;background:#bee;width:160px;margin:8px;padding:8px}
+body{text-align:center}
+.row,.col{display:inline-block}
+.col{background:#bee;width:160px;margin:8px;padding:8px}
 </style>
 <script src="edjs.js"></script>
 <script>
@@ -16,15 +18,12 @@ if(e==27)alert("Esc");
 $.fn.extend({
 equalheight:function(){
 return this.each(function(){
-var tall=0;
-$(this).children().each(function(){
-tall=Math.max($(this).height(),tall);
-}).css({"height":tall+'px'});
+	var tall=0;
+	$(this).children().each(function(){
+	tall=Math.max($(this).height(),tall);
+	}).css({"height":tall+'px'});
 });
-}
-});
-$('.equal').equalheight();
-$.fn.extend({
+},
 checkBoxSelect:function(options){
 var opts=Object.assign({placeholder:"Select options"},options);
 return this.each(function() {
@@ -34,7 +33,7 @@ return this.each(function() {
 	var container=$.parseHTML(
 	'<div class="edjs-multiselect" style="position:relative;display:inline-block;width:'+($select.width()||200)+'px;font-family:sans-serif; font-size:14px;">'+
 	'<div class="edjs-select-trigger" style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border:1px solid #ccc; border-radius:4px;cursor:pointer;background:#fff;user-select:none;">'+
-	'<span class="edjs-trigger-text" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:8px;">'+opts.placeholder+ '</span><span class="edjs-trigger-arrow" style="font-size:10px;color:#555;flex-shrink:0;">▼</span></div>' +
+	'<span class="edjs-trigger-text" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:8px">'+opts.placeholder+ '</span><span class="edjs-trigger-arrow" style="font-size:10px;color:#555;flex-shrink:0;">▼</span></div>'+
 	'<div class="edjs-select-dropdown" style="display:none;position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #ccc; border-top:none;border-radius:0 0 4px 4px;max-height:200px;overflow-y:auto;z-index:999;box-shadow:0 2px 5px rgba(0,0,0,0.1);"></div></div>');
 	var liveContainer=container.cloneNode(true);
 	if(this.parentNode)this.parentNode.insertBefore(liveContainer, this.nextSibling);
@@ -52,9 +51,9 @@ return this.each(function() {
 	for(var i=0;i < this.options.length;i++){
 		var opt=this.options[i];
 		var item=$.parseHTML(
-		'<label style="display:flex; align-items:center;padding:8px 12px;cursor:pointer;margin:0;user-select:none;">' +
-		'<input type="checkbox" value="' + opt.value + '"'+(opt.selected ? ' checked':'')+
-		' style="margin-right:8px; cursor:pointer;"><span>'+opt.text+'</span></label>');
+		'<label style="display:flex;align-items:center;padding:8px 12px;cursor:pointer;margin:0;user-select:none">' +
+		'<input type="checkbox" value="'+opt.value+'"'+(opt.selected ? ' checked':'')+
+		' style="margin-right:8px;cursor:pointer">'+opt.text+'</label>');
 		item.addEventListener('mouseover',function(){this.style.background='#f5f5f5';});
 		item.addEventListener('mouseout',function(){this.style.background='transparent';});
 		var checkbox=item.querySelector('input');
@@ -81,14 +80,15 @@ return this.each(function() {
 });
 }
 });
+$('.row').equalheight();
 $('#mySelect').checkBoxSelect({placeholder: "Choose..."});
 });
 </script>
 </head><body>
-<div class="equal">
-<div class="column">Text1</div>
-<div class="column">Text2</div>
-<div class="column">Text3</div>
+<div class="row">
+<div class="col">Text1</div>
+<div class="col">Text2</div>
+<div class="col">Text3</div>
 </div>
 <br style="clear:both"/>
 <select id="mySelect" name="categories" multiple>
