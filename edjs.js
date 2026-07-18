@@ -22,7 +22,7 @@ var EdJS=function(s){
 			}
 		}
 	}else if(typeof s==="object"){
-		if(s instanceof NodeList||s instanceof HTMLCollection||Array.isArray(s)){
+		if(s instanceof NodeList||s instanceof HTMLCollection||$.isArray(s)){
 			n=s.length;
 			for(i=0;i<n;i++) this[i]=s[i];
 			this.length=n;
@@ -80,8 +80,8 @@ EdJS.prototype={
 	},
 	removeAttr:function(a){
 		return this.each(function(){
-			var as=a.split(" ");
-			for(var i=0;i<as.length;i++){if(as[i]) this.removeAttribute(as[i]);}
+			var i,as=a.split(" ");
+			for(i=0;i<as.length;i++){if(as[i]) this.removeAttribute(as[i]);}
 		});
 	},
 	prop:function(a,v){
@@ -115,14 +115,14 @@ EdJS.prototype={
 	},
 	addClass:function(a){
 		return this.each(function(){
-			var cls=a.split(" ");
-			for(var i=0;i<cls.length;i++){if(cls[i]) this.classList.add(cls[i]);}
+			var i,cls=a.split(" ");
+			for(i=0;i<cls.length;i++){if(cls[i]) this.classList.add(cls[i]);}
 		});
 	},
 	removeClass:function(a){
 		return this.each(function(){
-			var cls=a.split(" ");
-			for(var i=0;i<cls.length;i++){if(cls[i]) this.classList.remove(cls[i]);}
+			var i,cls=a.split(" ");
+			for(i=0;i<cls.length;i++){if(cls[i]) this.classList.remove(cls[i]);}
 			if(this.classList.length===0) this.removeAttribute("class");
 		});
 	},
@@ -143,8 +143,8 @@ EdJS.prototype={
 	},
 	get:function(a){
 		if(a===undefined){
-			var el=[];
-			for(var i=0;i<this.length;i++) el.push(this[i]);
+			var i,el=[];
+			for(i=0;i<this.length;i++) el.push(this[i]);
 			return el;
 		}
 		return this[a];
@@ -242,7 +242,7 @@ EdJS.prototype={
 		return _new(this,function(){
 			var el=[];
 			this.each(function(){
-				var match=this.querySelectorAll(a),i,n=match.length;
+				var i,match=this.querySelectorAll(a),n=match.length;
 				for(i=0;i<n;i++){if(el.indexOf(match[i])===-1) el.push(match[i]);}
 			});
 			return el;
@@ -267,13 +267,13 @@ EdJS.prototype={
 		if(a===undefined){
 			var parent=el.parentNode;
 			if(!parent) return -1;
-			var sbl=parent.children;
-			for(var i=0;i<sbl.length;i++){if(sbl[i]===el) return i;}
+			var i,sbl=parent.children;
+			for(i=0;i<sbl.length;i++){if(sbl[i]===el) return i;}
 			return -1;
 		}
 		if(typeof a==="string"){
-			var els=$(a);
-			for(var j=0;j<els.length;j++){if(els[j]===el) return j;}
+			var j,els=$(a);
+			for(j=0;j<els.length;j++){if(els[j]===el) return j;}
 			return -1;
 		}
 		var tEl=a instanceof EdJS ? a[0]:a;
@@ -300,12 +300,12 @@ EdJS.prototype={
 	},
 	height:function(a){
 		if(a===undefined) return this.length>0 ? this[0].offsetHeight:0;
-		var v=typeof a==='number' ? a+'px':a;
+		var v=typeof a==='number'?a+'px':a;
 		return this.each(function(){this.style.height=v;});
 	},
 	width:function(a){
 		if(a===undefined) return this.length>0 ? this[0].offsetWidth:0;
-		var v=typeof a==='number' ? a+'px':a;
+		var v=typeof a==='number'?a+'px':a;
 		return this.each(function(){this.style.width=v;});
 	},
 	innerWidth:function(){
@@ -354,8 +354,8 @@ EdJS.prototype={
 			}else if(typeof a==="string"){
 				for(var i=0;i<this.length;i++){if(this[i].matches(a)) el.push(this[i]);}
 			}else if(a){
-				var tEl=a instanceof EdJS ? a[0]:a;
-				for(var i=0;i<this.length;i++){if(this[i]===tEl)el.push(this[i]);}
+				var i,tEl=a instanceof EdJS ? a[0]:a;
+				for(i=0;i<this.length;i++){if(this[i]===tEl)el.push(this[i]);}
 			}
 			return el;
 		});
@@ -368,13 +368,33 @@ EdJS.prototype={
 			}else if(typeof a==="string"){
 				for(var i=0;i<this.length;i++){if(!this[i].matches(a)) el.push(this[i]);}
 			}else if(a){
-				var tEl=a instanceof EdJS ? a[0]:a;
-				for(var i=0;i<this.length;i++){if(this[i]!==tEl) el.push(this[i]);}
+				var i,tEl=a instanceof EdJS ? a[0]:a;
+				for(i=0;i<this.length;i++){if(this[i]!==tEl) el.push(this[i]);}
 			}else{
 				for(var i=0;i<this.length;i++) el.push(this[i]);
 			}
 			return el;
 		});
+	},
+	end:function(){
+		return this.prevObj||$(null);
+	},
+	slice:function(){
+		var el=this,arg=arguments;
+		return _new(this,function(){
+			return [].slice.apply(el,arg);
+		});
+	},
+	delay:function(t){
+		var i,el=this,o=$([]);
+		o.prevObj=el;
+		o.each=function(cb){
+			setTimeout(function(){el.each(cb);},t);
+			return o;
+		};
+		for(i=0;i<el.length;i++) o[i]=el[i];
+		o.length=el.length;
+		return o;
 	},
 	offset:function(){
 		if(this.length===0) return{top:0,left:0};
@@ -599,8 +619,7 @@ EdJS.prototype={
 	serialize:function(){
 		var arr=[],add=function(n,v){arr.push(encodeURIComponent(n)+"="+encodeURIComponent(v));};
 		this.each(function(){
-			var i,el=this;
-			var els=el.nodeName==="FORM" ? Array.from(el.elements):[el];
+			var i,el=this,els=el.nodeName==="FORM" ? [].slice.call(el.elements):[el];
 			for(i=0;i<els.length;i++){
 				var field=els[i];
 				if(!field.name||field.disabled||['file','reset','submit','button'].indexOf(field.type) !== -1) continue;
@@ -620,8 +639,11 @@ EdJS.prototype={
 		return arr.join("&");
 	}
 };
-$.inArray=function(k,arr){
-	return arr.indexOf(k)!==-1;
+$.isArray=function(v){
+	return {}.toString.call(v)==='[object Array]';
+}
+$.inArray=function(k,v){
+	return v.indexOf(k)!==-1;
 };
 $.isFunction=function(v){
 	return typeof v==='function';
@@ -630,14 +652,14 @@ $.isNumeric=function(v){
 	return !isNaN(parseFloat(v)) && isFinite(v);
 };
 $.isObj=function(v){
-	return typeof v==="object" && v!==null && !Array.isArray(v);
+	return typeof v==="object" && v!==null && !$.isArray(v);
 };
 $.isJson=function(v){
 	if(typeof v!=='string') return false;
 	try{
 	var jp=JSON.parse(v);
 	if(jp===null||typeof jp==='undefined') return false;
-	if(typeof jp!=='object' && !Array.isArray(jp)) return false;
+	if(typeof jp!=='object' && !$.isArray(jp)) return false;
 	return true;
 	}catch(e){
 	return false;
@@ -664,11 +686,11 @@ $.ajax=function(opt){
 	};
 	var qStr="";
 	if($.isObj(opt.data)){
-		var prm=[];
+		var pr=[];
 		for(var name in opt.data){
-			if(opt.data.hasOwnProperty(name)) prm.push(encodeURIComponent(name)+"="+encodeURIComponent(opt.data[name]));
+			if(opt.data.hasOwnProperty(name)) pr.push(encodeURIComponent(name)+"="+encodeURIComponent(opt.data[name]));
 		}
-		qStr=prm.join("&");
+		qStr=pr.join("&");
 	}else if(typeof opt.data==="string"){
 		qStr=opt.data;
 	}
@@ -690,11 +712,11 @@ $.ajax=function(opt){
 	}
 };
 $.get=function(url,data,success,dataType){
-	if(typeof data==="function"){dataType=success; success=data; data=null;}
+	if(typeof data==="function"){dataType=success;success=data;data=null;}
 	$.ajax({url:url,type:"GET",data:data,success:success,dataType:dataType});
 };
 $.post=function(url,data,success,dataType){
-	if(typeof data==="function"){dataType=success; success=data; data=null;}
+	if(typeof data==="function"){dataType=success;success=data;data=null;}
 	$.ajax({url:url,type:"POST",data:data,success:success,dataType:dataType});
 };
 $.parseHTML=function(h){
@@ -705,8 +727,10 @@ $.parseHTML=function(h){
 	while(d.firstChild){f.appendChild(d.firstChild);}
 	return f;
 }
-function _new(self,fn){
-	return $(fn.call(self));
+function _new(a,fn){
+	var r=$(fn.call(a));
+	r.prevObj=a;
+	return r;
 }
 function _ins(t,a,s){
 	var el=null;
@@ -722,8 +746,8 @@ function _slide(el,direction,speed=500,cb){
 	el.style.height=isDown ? "0":targetH+"px";
 	requestAnimationFrame(function animate(cTime){
 		if(!sTime) sTime=cTime;
-		var progress=Math.min((cTime - sTime)/speed,1);
-		el.style.height=(isDown ? progress * targetH : (1 - progress) * targetH)+"px";
+		var progress=Math.min((cTime-sTime)/speed,1);
+		el.style.height=(isDown ? progress * targetH : (1-progress) * targetH)+"px";
 		if(progress<1){
 			requestAnimationFrame(animate);
 		}else{
@@ -751,7 +775,7 @@ function _fade(speed,fn,isIn){
 		}
 		function animate(cTime){
 			if(!sTime) sTime=cTime;
-			var pr=Math.min((cTime - sTime)/speed,1);
+			var pr=Math.min((cTime-sTime)/speed,1);
 			el.style.opacity=isIn ? pr:1-pr;
 			if(pr<1){
 				requestAnimationFrame(animate);
