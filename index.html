@@ -5,7 +5,7 @@
 <style>
 body{text-align:center}
 .row,.col{display:inline-block}
-.col{background:#bee;width:160px;margin:8px;padding:8px}
+.col{background:#bee;margin:5px;padding:5px 50px}
 </style>
 <script src="edjs.js"></script>
 <script>
@@ -81,17 +81,16 @@ return this.each(function() {
 }
 });
 $('.row').equalheight();
-$('#mySelect').checkBoxSelect({placeholder: "Choose..."});
+$('#mySelect').checkBoxSelect();
 });
 </script>
 </head><body>
 <div class="row">
-<div class="col">Text1</div>
-<div class="col">Text2</div>
-<div class="col">Text3</div>
+<div class="col" style="height:50px">Div 1</div>
+<div class="col">Div 2</div>
 </div>
-<br style="clear:both"/>
-<select id="mySelect" name="categories" multiple>
+<br/>
+<select id="mySelect" multiple>
 <option value="1">Java</option>
 <option value="2">Php</option>
 <option value="3">Perl</option>
