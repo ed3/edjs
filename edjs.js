@@ -101,7 +101,7 @@ EdJS.prototype={
 			return this.length>0 ? getComputedStyle(this[0])[a]:'';
 		}
 		if(typeof a==='object' && a!==null){
-			return this.each(function(){for(var prop in a){if(a[prop]) this.style[prop]=a[prop];}});
+			return this.each(function(){for(var p in a){if(a[p]) this.style[p]=a[p];}});
 		}
 		if(typeof a==='string' && v!==undefined){
 			return this.each(function(){this.style[a]=v;});
@@ -351,7 +351,7 @@ EdJS.prototype={
 			if(typeof a==="function"){
 				for(var i=0;i<this.length;i++){if(a.call(this[i],i,this[i])) el.push(this[i]);}
 			}else if(typeof a==="string"){
-				for(var i=0;i<this.length;i++){if(this[i].matches(a)) el.push(this[i]);}
+				for(var i=0;i<this.length;i++){if(this[i].nodeType===1 &&this[i].matches(a)) el.push(this[i]);}
 			}else if(a){
 				var i,tEl=a instanceof EdJS ? a[0]:a;
 				for(i=0;i<this.length;i++){if(this[i]===tEl)el.push(this[i]);}
@@ -484,10 +484,23 @@ EdJS.prototype={
 			return el;
 		});
 	},
+	contents:function(){
+		return _new(this,function(){
+			var nodes=[];
+			this.each(function(){
+				var i,el=this,children=el.nodeName==="IFRAME" ? (el.contentDocument ? [el.contentDocument]:[]):(el.nodeName==="TEMPLATE" ? (el.content || el).childNodes:el.childNodes);
+				for(i=0;i < children.length;i++){
+					if(nodes.indexOf(children[i])===-1) nodes.push(children[i]);
+				}
+			});
+			return nodes;
+		});
+	},
 	wrap:function(a){
 		return this.each(function(){
 			var wrp=typeof a==='string' ? $.parseHTML(a):a;
 			if(wrp && this.parentNode){
+				if(wrp.nodeType===11) wrp=wrp.firstElementChild||wrp.firstChild;
 				var cloneWrp=wrp.cloneNode(true);
 				this.parentNode.insertBefore(cloneWrp,this);
 				cloneWrp.appendChild(this);
@@ -512,8 +525,8 @@ EdJS.prototype={
 	},
 	toggleClass:function(a){
 		return this.each(function(){
-			var cls=a.split(" ");
-			for(var i=0;i<cls.length;i++){
+			var i,cls=a.split(" ");
+			for(i=0;i<cls.length;i++){
 				if(cls[i]) this.classList.toggle(cls[i]);
 			}
 		});
@@ -533,8 +546,8 @@ EdJS.prototype={
 	animate:function(props,dur,eas,cb){
 	var o=typeof dur==="object" ? dur:{duration:dur,complete:typeof eas==="function" ? eas:cb},d=parseFloat(o.duration)||500;
 	return this.each(function(){
-		var el=this,start={},end={},sTime=null,comp=getComputedStyle(el),disp=el.style.display==="none" ? "block":el.style.display||comp.display;
-		for(var p in props){
+		var p,el=this,start={},end={},sTime=null,comp=getComputedStyle(el),disp=el.style.display==="none" ? "block":el.style.display||comp.display;
+		for(p in props){
 			if(!props.hasOwnProperty(p)) continue;
 			var val=props[p],cur=parseFloat(comp[p]||comp[p.replace(/([A-Z])/g,"-$1").toLowerCase()]);
 			if(isNaN(cur)){cur=p==='width'?el.offsetWidth:p==='height'?el.offsetHeight:p==='opacity'?1:0;}
@@ -757,20 +770,16 @@ function _fade(speed=500,fn,isIn){
 	return this.each(function(){
 		var el=this;
 		if(speed<=0){
-			el.style.opacity=isIn ? "1":"0";
-			el.style.display=isIn ? "":"none";
+			el.style.opacity=isIn ? "1":"0";el.style.display=isIn ? "":"none";
 			if(typeof fn==="function") fn.call(el);
 			return;
 		}
 		if(isIn){
-			el.style.opacity="0";
-			el.style.display="";
+			el.style.opacity="0";el.style.display="";
 		}else{
 			el.style.opacity="1";
 		}
-		el.offsetHeight;
-		el.style.transition="opacity "+speed+"ms ease";
-		el.style.opacity=isIn ? "1":"0";
+		el.offsetHeight;el.style.transition="opacity "+speed+"ms ease";el.style.opacity=isIn ? "1":"0";
 		setTimeout(function(){
 			el.style.transition="";
 			if(!isIn) el.style.display="none";
