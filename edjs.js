@@ -253,6 +253,20 @@ EdJS.prototype={
 	last:function(){
 		return _new(this,function(){return this.length>0 ? [this[this.length-1]]:[];});
 	},
+	even:function(){
+		return _new(this,function(){
+		var i,el=[];
+		for(i=0;i<this.length;i +=2) el.push(this[i]);
+		return el;
+		});
+	},
+	odd:function(){
+		return _new(this,function(){
+		var i,el=[];
+		for(i=1;i<this.length;i +=2) el.push(this[i]);
+		return el;
+		});
+	},
 	has:function(a){
 		return _new(this,function(){
 			var el=[];
@@ -351,7 +365,7 @@ EdJS.prototype={
 			if(typeof a==="function"){
 				for(var i=0;i<this.length;i++){if(a.call(this[i],i,this[i])) el.push(this[i]);}
 			}else if(typeof a==="string"){
-				for(var i=0;i<this.length;i++){if(this[i].nodeType===1 &&this[i].matches(a)) el.push(this[i]);}
+				for(var i=0;i<this.length;i++){if(this[i].nodeType===1 && this[i].matches(a)) el.push(this[i]);}
 			}else if(a){
 				var i,tEl=a instanceof EdJS ? a[0]:a;
 				for(i=0;i<this.length;i++){if(this[i]===tEl)el.push(this[i]);}
